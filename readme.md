@@ -1,7 +1,7 @@
 
-# Basic Rust Metrics Program 📊
+# Rusty Metrics 📊
 
-Welcome to the Basic Rust Metrics Program! This simple yet powerful tool provides you with detailed metrics on your system's Battery, Memory, and CPU. 
+Welcome to the Rusty Metrics! This simple yet powerful tool provides you with detailed metrics on your system's Battery, Memory, and CPU. 
 
 ## Table of Contents 📜
 
@@ -42,7 +42,7 @@ Welcome to the Basic Rust Metrics Program! This simple yet powerful tool provide
 2. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/BasicRustMetrics.git
+   git clone https://github.com/tomasmedellin/rustymetrics.git
    ```
 
 3. Navigate to the cloned directory and build the project:
