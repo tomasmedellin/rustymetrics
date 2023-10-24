@@ -19,10 +19,13 @@ enum Section {
     Welcome,
     Metrics,
     Instructions,
+    DetailedMetrics,
+    CPUDetails,
+    MemoryDetails,
+    BatteryDetails,
 }
 
 fn main() {
-    // Enable raw mode
     crossterm::terminal::enable_raw_mode().unwrap();
 
     let backend = CrosstermBackend::new(io::stdout());
@@ -35,14 +38,12 @@ fn main() {
     let mut needs_redraw = true;
 
     loop {
-        // Non-blocking check for key events
         if event::poll(Duration::from_millis(10)).unwrap() {
             match event::read().unwrap() {
                 event::Event::Key(event) => {
-                    needs_redraw = true; // Set flag to redraw after key event
+                    needs_redraw = true;
                     match event.code {
                         KeyCode::Char('q') => {
-                            // Before exiting, disable raw mode
                             crossterm::terminal::disable_raw_mode().unwrap();
                             terminal.clear().unwrap();
                             return;
@@ -52,6 +53,10 @@ fn main() {
                                 Section::Instructions => Section::Metrics,
                                 Section::Metrics => Section::Welcome,
                                 Section::Welcome => Section::Welcome,
+                                Section::DetailedMetrics => Section::BatteryDetails,
+                                Section::CPUDetails => Section::DetailedMetrics,
+                                Section::MemoryDetails => Section::CPUDetails,
+                                Section::BatteryDetails => Section::MemoryDetails,
                             };
                         }
                         KeyCode::Down => {
@@ -59,7 +64,21 @@ fn main() {
                                 Section::Welcome => Section::Metrics,
                                 Section::Metrics => Section::Instructions,
                                 Section::Instructions => Section::Instructions,
+                                Section::DetailedMetrics => Section::CPUDetails,
+                                Section::CPUDetails => Section::MemoryDetails,
+                                Section::MemoryDetails => Section::BatteryDetails,
+                                Section::BatteryDetails => Section::DetailedMetrics,
                             };
+                        }
+                        KeyCode::Enter => {
+                            match current_section {
+                                Section::Metrics => current_section = Section::DetailedMetrics,
+                                Section::DetailedMetrics => current_section = Section::CPUDetails,
+                                Section::CPUDetails => current_section = Section::MemoryDetails,
+                                Section::MemoryDetails => current_section = Section::BatteryDetails,
+                                Section::BatteryDetails => current_section = Section::Welcome,
+                                _ => {}
+                            }
                         }
                         _ => {}
                     }
@@ -68,7 +87,6 @@ fn main() {
             }
         }
 
-        // Redraw the screen if needed
         if needs_redraw || last_update.elapsed() > update_interval {
             terminal.draw(|f| {
                 let chunks = Layout::default()
@@ -113,7 +131,7 @@ fn main() {
                 f.render_widget(instructions_widget, chunks[2]);
             }).unwrap();
             last_update = Instant::now();
-            needs_redraw = false; // Reset the redraw flag
+            needs_redraw = false;
         }
     }
 }
